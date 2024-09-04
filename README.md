@@ -22,7 +22,7 @@ This is a curated version of the [PhysioNet Challenge 2018 Dataset (v1.0.0)](htt
 1. Clone repository
 
    ```
-   git clone https://github.com/bomatter/data-PhysioNet.git PhysioNet
+   git clone https://github.com/bomatter/data-PhysioNet2018.git PhysioNet
    cd PhysioNet
    ```
 
