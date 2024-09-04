@@ -22,8 +22,8 @@ This is a curated version of the [PhysioNet Challenge 2018 Dataset (v1.0.0)](htt
 1. Clone repository
 
    ```
-   git clone https://github.com/bomatter/data-PhysioNet2018.git PhysioNet
-   cd PhysioNet
+   git clone https://github.com/bomatter/data-PhysioNet2018.git PhysioNet2018
+   cd PhysioNet2018
    ```
 
 2. Install dependencies or use an existing environment with mne, mne-bids, and wfdb installed.
