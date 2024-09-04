@@ -4,12 +4,12 @@ This is a curated version of the [PhysioNet Challenge 2018 Dataset (v1.0.0)](htt
 
 
 
-- Participant IDs correspond to the subject names but without hyphen (e.g. tr030005 instead of tr03-0005)
+- Participant IDs correspond to the subject names but without hyphen (e.g. tr030005 instead of tr03-0005) for BIDS compatibility
 - Channel names and types are standardised
 - Channel locations are set from the standard 10-20 montage
 - Age and sex information is added to the participants.tsv file from age-sex.csv
 - The official split is added to the participants.tsv file
-- Annotations are extracted from the matlab and WFDB files and added as events:
+- Annotations (only available for the train split) are extracted from the matlab and WFDB files and added as events:
   - Sleep stage annotations with labels from the matlab files ("wake", "rem", "nonrem1", ...)
   - Binary arousal regions used in the PhysioNet Challenge 2018 ("arousal" and "non-arousal")
   - Detailed arousal labels extracted from the WFDB files ("arousal_rera", "resp_centralapnea", ...)
