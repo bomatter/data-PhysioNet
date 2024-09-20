@@ -1,10 +1,11 @@
 import os
 import re
 import shutil
-import warnings
-
 import numpy as np
 import pandas as pd
+
+import warnings
+from warnings import warn
 
 from pathlib import Path
 from tqdm import tqdm
@@ -21,6 +22,7 @@ warnings.filterwarnings("ignore", category=RuntimeWarning, message=".*Converting
 warnings.filterwarnings("ignore", category=RuntimeWarning, message='.*Encountered data in "double" format.*')
 warnings.filterwarnings("ignore", category=UserWarning, message=".*Encountered unsupported non-voltage units*")
 warnings.filterwarnings("ignore", category=RuntimeWarning, message=".*No events found or provided.*")
+warnings.filterwarnings("ignore", category=RuntimeWarning, message=".*annotation\(s\) that were expanding outside the data range.*")
 
 # Rename channel names for better interoperability with standard montages in MNE
 channel_name_mapping = {
@@ -87,8 +89,8 @@ def parse_samplewise_annotations(samplewise_annotations, category, sampling_freq
     as required by MNE.
     """
     changes = np.diff(samplewise_annotations, prepend=0, append=0)
-    onsets = np.where(changes == 1)[0] / sampling_frequency
-    offsets = np.where(changes == -1)[0] / sampling_frequency
+    onsets = (np.where(changes == 1)[0] + 1) / sampling_frequency
+    offsets = (np.where(changes == -1)[0] + 1) / sampling_frequency
     durations = offsets - onsets
     descriptions = [category] * len(onsets)
     
@@ -247,6 +249,12 @@ for file in tqdm(files):
                 description=descriptions
             )
 
+            # Remove annotations with onset outside of the recording
+            remove_indices = np.where(annotations.onset > raw.times[-1])[0]
+            if len(remove_indices):
+                warn(f"Removing {len(remove_indices)} annotations with onsets outside of the recording.")
+                annotations.delete(remove_indices)
+
             raw.set_annotations(annotations)
 
         # Add channel locations
@@ -265,7 +273,7 @@ for file in tqdm(files):
 
     except Exception as e:
         print(f"Error processing file {file}: {e}")
-        errors.append(file)
+        errors.append(str(file))
         continue
 
 # Curate participants.tsv file
