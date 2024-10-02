@@ -255,6 +255,21 @@ for file in tqdm(files):
                 warn(f"Removing {len(remove_indices)} annotations with onsets outside of the recording.")
                 annotations.delete(remove_indices)
 
+            # Fix annotations with durations that extend beyond the recording
+            remove_indices = np.where(annotations.onset + annotations.duration > raw.times[-1])[0]
+            for idx in remove_indices:
+                a = annotations[idx]
+                # Check if the duration is off by less than 20 samples (0.1 s at a sampling frequency of 200 Hz).
+                # Discrepancies up to this tolerance are fixed, otherwise we raise an error.
+                dt = 1 / raw.info["sfreq"]
+                tolerance = 20 * dt
+                if (a["onset"] + a["duration"]) - raw.times[-1] < tolerance:
+                    a["duration"] = raw.times[-1] - a["onset"]  # Adjust duration to end of recording
+                    annotations.delete(idx)
+                    annotations.append(onset=a["onset"], duration=a["duration"], description=a["description"])
+                else:
+                    raise RuntimeError(f"Annotation {a} extends beyond the recording and exceeds the tolerance of 10 samples.")
+
             raw.set_annotations(annotations)
 
         # Add channel locations
