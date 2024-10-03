@@ -13,6 +13,7 @@ This is a curated version of the [PhysioNet Challenge 2018 Dataset (v1.0.0)](htt
   - Sleep stage annotations with labels from the matlab files ("wake", "rem", "nonrem1", ...)
   - Binary arousal regions used in the PhysioNet Challenge 2018 ("arousal" and "non-arousal")
   - Detailed arousal labels extracted from the WFDB files ("arousal_rera", "resp_centralapnea", ...)
+- Derivatives with segmented data for the different annotations (`derivatives/sleep_stages`, `derivatives/arousal_binary`, `derivatives/arousal_labels`): segments corresponding to individual annotations (e.g. a continuous segment of a particular sleep stage) are saved as separate files. File names contain the `desc` entity to indicate the corresponding label and the `run` entitiy to enumerate multiple segments of the same label. For example: `sub-tr030146_task-sleep_run-01_desc-rem_eeg.vhdr`. Furthermore, the label for each file is also noted in the associated `scans.tsv` files.
 
 
 
@@ -22,15 +23,15 @@ This is a curated version of the [PhysioNet Challenge 2018 Dataset (v1.0.0)](htt
 1. Clone repository
 
    ```
-   git clone https://github.com/bomatter/data-PhysioNet2018.git PhysioNet2018
-   cd PhysioNet2018
+   git clone https://github.com/bomatter/data-PhysioNet.git PhysioNet
+   cd PhysioNet
    ```
 
 2. Install dependencies or use an existing environment with mne, mne-bids, and wfdb installed.
    Example using mamba:
 
    ```
-   mamba create -n bidsify python=3.10 mne mne-bids wfdb
+   mamba create -n bidsify python=3.10 mne>=1.8 mne-bids wfdb
    mamba activate bidsify
    ```
 
@@ -71,3 +72,13 @@ This is a curated version of the [PhysioNet Challenge 2018 Dataset (v1.0.0)](htt
       -o "derivatives/*" \
       "python code/convert_PhysioNet_to_BIDS.py"
    ```
+
+6. (optional) Create derivatives with data segmented according to annotations.
+
+   ```
+   python code/create_sleep_stages_derivative.py
+   python code/create_arousal_binary_derivative.py
+   python code/create_arousal_labels_derivative.py
+   ```
+
+   (or use the same format as above for DataLad)
