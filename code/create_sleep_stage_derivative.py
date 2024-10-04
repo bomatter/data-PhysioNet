@@ -72,13 +72,15 @@ for file in tqdm(files):
                     scans_tsv.loc[scans_tsv.filename == "eeg/" + new_bp.basename, "sleep_stage"] = annotation["description"]
                     scans_tsv.to_csv(scans_tsv_path, sep="\t", index=False, na_rep="n/a")
         except Exception as e:
-            print(f"Error processing annotation {i} in file {file}: {e}")
-            errors.append(file)
+            error_msg = f"Error processing annotation {i} in file {str(file)}: {e}"
+            print(error_msg)
+            errors.append(error_msg)
             continue
         
     except Exception as e:
-        print(f"Error processing file {file}: {e}")
-        errors.append(file)
+        error_msg = f"Error processing file {str(file)}: {e}"
+        print(error_msg)
+        errors.append(error_msg)
         continue
 
 # Update participants.tsv file: we use the participants.tsv file from the rawdata
@@ -89,7 +91,7 @@ participants_tsv_filtered = participants_tsv_raw[participants_tsv_raw["participa
 participants_tsv_filtered.to_csv(deriv_root / "participants.tsv", sep="\t", index=False, na_rep="n/a")
 
 
-print(f"Sleep stage derivative creation completed. {len(files)- len(errors)}/{len(files)} files were successfully processed.")
+print(f"Sleep stage derivative creation completed.")
 if errors:
-    print("Errors occurred for the following files:")
+    print("The following errors occurred during processing:")
     print("\n".join(errors))

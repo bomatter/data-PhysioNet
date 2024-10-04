@@ -87,8 +87,9 @@ for file in tqdm(files):
                 scans_tsv.to_csv(scans_tsv_path, sep="\t", index=False, na_rep="n/a")
 
     except Exception as e:
-        print(f"Error processing file {file}: {e}")
-        errors.append(file)
+        error_msg = f"Error processing file {str(file)}: {e}"
+        print(error_msg)
+        errors.append(error_msg)
         continue
 
 # Update participants.tsv file: we use the participants.tsv file from the rawdata
@@ -100,7 +101,7 @@ participants_tsv_filtered.to_csv(deriv_root / "participants.tsv", sep="\t", inde
 
 
 # Print final summary
-print(f"Arousal labels derivative creation completed. {len(files)- len(errors)}/{len(files)} files were successfully processed.")
+print(f"Arousal labels derivative creation completed. {len(files) - len(errors)} / {len(files)} files were successfully processed.")
 if errors:
     print("Errors occurred for the following files:")
     print("\n".join(errors))
