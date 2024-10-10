@@ -1,5 +1,4 @@
 import os
-import logging
 import pandas as pd
 import shutil
 import warnings
@@ -10,15 +9,6 @@ from pathlib import Path
 
 from mne_bids import read_raw_bids, write_raw_bids, get_bids_path_from_fname
 
-# Configure logging to save the final summary in a log file in addition to the console output
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler("arousal_binary_derivative_creation.log"),
-        logging.StreamHandler()
-    ]
-)
 
 # Suppress known warnings
 warnings.filterwarnings("ignore", category=RuntimeWarning, message=".*Converting data files to BrainVision.*")
