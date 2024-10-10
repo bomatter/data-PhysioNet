@@ -8,7 +8,7 @@ This is a curated version of the [PhysioNet Challenge 2018 Dataset (v1.0.0)](htt
 - Channel names and types are standardised
 - Channel locations are set from the standard 10-20 montage
 - Age and sex information is added to the participants.tsv file from age-sex.csv
-- The official split is added to the participants.tsv file
+- The official split is added to the participants.tsv file. Additional columns are added for a train_val_test_split, which subdivides the train data into train and val and a labeled_train_val_test_split, where the data of the official train split (the only data for which labels are available) is subdivided into train, val, and test. The latter can be useful for internal experiments where labeled test data is required. The additional splits are stratified by age and sex.
 - Annotations (only available for the train split) are extracted from the matlab and WFDB files and added as events:
   - Sleep stage annotations with labels from the matlab files ("wake", "rem", "nonrem1", ...)
   - Binary arousal regions used in the PhysioNet Challenge 2018 ("arousal" and "non-arousal")

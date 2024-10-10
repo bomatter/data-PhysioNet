@@ -11,6 +11,7 @@ from pathlib import Path
 from tqdm import tqdm
 from wfdb import rdrecord, rdann
 from pymatreader import read_mat
+from sklearn.model_selection import train_test_split
 
 import mne
 from mne import create_info
@@ -305,10 +306,54 @@ participants_tsv = participants_tsv.drop(columns=["age", "sex", "hand", "weight"
 participants_tsv = participants_tsv.merge(age_sex_info, on="participant_id", how="left")
 participants_tsv.reindex(columns=["participant_id", "age", "sex"])  # reorder columns
 
+# Standardise sex column
+participants_tsv['sex'] = participants_tsv['sex'].str.upper()
+
 # Add official split information
 participants_tsv["split"] = np.where(
     participants_tsv["participant_id"].str.startswith("sub-tr"), "train", "test"
 )
+
+# Split train into train and validation, stratifying by age and sex
+participants_train = participants_tsv[participants_tsv['split'] == 'train']
+age_bins = pd.cut(participants_train['age'], bins=[0, 20, 30, 40, 50, 60, 70, 80, 100])
+stratification_vars = age_bins.astype(str) + '_' + participants_train['sex']
+train, val = train_test_split(
+    participants_train.participant_id,
+    stratify=stratification_vars,
+    test_size=0.1, random_state=9292, shuffle=True
+)
+
+participants_tsv['train_val_test_split'] = participants_tsv['participant_id'].apply(
+    lambda x: 'train' if x in train.values else 'val' if x in val.values else 'test'
+)
+
+# Check that all participants in the official test split are also test in the train_val_test_split
+assert (participants_tsv.loc[participants_tsv['split'] == 'test', 'train_val_test_split'] == 'test').all()
+
+# Since labels are only available for the training set, we also create
+# a labled_train_val_test_split column that only contains participants
+# with labels, i.e. those in the official train split.
+participants_train = participants_tsv[participants_tsv['split'] == 'train']
+age_bins = pd.cut(participants_train['age'], bins=[0, 25, 50, 75, 100])
+stratification_vars = age_bins.astype(str) + '_' + participants_train['sex']
+train, val_and_test = train_test_split(
+    participants_train.participant_id,
+    stratify=stratification_vars,
+    test_size=0.15, random_state=9292, shuffle=True
+)
+
+val, test = train_test_split(
+    val_and_test,
+    stratify=val_and_test.map(lambda pid: stratification_vars[participants_train.participant_id == pid].values[0]),
+    test_size=0.5, random_state=9292, shuffle=True
+)
+
+participants_tsv['labeled_train_val_test_split'] = 'NaN'
+participants_tsv.loc[participants_tsv['participant_id'].isin(train), 'labeled_train_val_test_split'] = 'train'
+participants_tsv.loc[participants_tsv['participant_id'].isin(val), 'labeled_train_val_test_split'] = 'val'
+participants_tsv.loc[participants_tsv['participant_id'].isin(test), 'labeled_train_val_test_split'] = 'test'
+
 
 participants_tsv.to_csv(rawdata_dir / "participants.tsv", sep="\t", index=False, na_rep="n/a")
 
